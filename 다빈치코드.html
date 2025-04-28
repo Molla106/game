@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>다빈치코드 타일 추리하기</title>
+  <meta name="viewport" content="width=650, initial-scale=1">
+  <style>
+    body {
+      font-family: 'Segoe UI', '맑은 고딕', Arial, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      margin: 0; padding: 0;
+      min-height: 100vh;
+    }
+    #container {
+      max-width: 700px;
+      margin: 36px auto 0 auto;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 8px 32px #0002;
+      padding: 32px 20px 24px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      color: #1a237e;
+      font-size: 2.1em;
+      margin: 0 0 18px 0;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-shadow: 0 2px 8px #b3c0e6;
+    }
+    #options {
+      margin: 0 0 18px 0;
+      font-size: 1.1em;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    #options label {
+      margin-right: 8px;
+    }
+    #options select, #options input[type="checkbox"] {
+      font-size: 1em;
+      padding: 4px 8px;
+      border-radius: 5px;
+      border: 1.5px solid #bdbdbd;
+      margin-left: 4px;
+      background: #f5f7fa;
+      transition: border-color 0.2s;
+    }
+    #options select:focus {
+      border-color: #1976d2;
+      outline: none;
+    }
+    #newgameBtn {
+      padding: 7px 18px;
+      font-size: 1.1em;
+      border-radius: 7px;
+      border: none;
+      background: linear-gradient(90deg, #1976d2 0%, #64b5f6 100%);
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 2px 8px #1976d220;
+      margin-left: 12px;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+    #newgameBtn:hover {
+      background: linear-gradient(90deg, #1565c0 0%, #42a5f5 100%);
+      box-shadow: 0 4px 16px #1976d240;
+    }
+    #tiles {
+      display: grid;
+      grid-template-columns: repeat(6, 72px);
+      gap: 26px 18px;
+      justify-content: center;
+      margin: 30px 0 18px 0;
+      min-height: 120px;
+      width: 100%;
+    }
+    .tilebox {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 72px;
+    }
+    .tile-num {
+      margin-bottom: 3px;
+      font-size: 1em;
+      color: #607d8b;
+      font-weight: bold;
+      letter-spacing: 1px;
+      opacity: 0.85;
+      text-shadow: 0 1px 2px #fff;
+      user-select: none;
+      pointer-events: none;
+    }
+    .tile {
+  width: 68px;
+  height: 100px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.7em;
+  border: 2px solid transparent;
+  box-shadow: 0 4px 16px #0001, 0 1.5px 0 #bdbdbd;
+  position: relative;
+  margin-bottom: 0;
+  transition: transform 0.13s, box-shadow 0.13s;
+  cursor: default;
+}
+
+.tile.black {
+  background: linear-gradient(160deg, #222 60%, #444 100%);
+  border-color: #000;
+  color: #fff;
+}
+
+.tile.white {
+  background: linear-gradient(160deg, #fff 60%, #f0f0f0 100%);
+  border-color: #ddd;
+  color: #000;
+}
+
+.tile.revealed {
+  transform: scale(1.05);
+  box-shadow: 0 6px 18px #1976d220, 0 2px 0 #1976d2;
+}
+    .tile .color-dot {
+      width: 20px; height: 20px; border-radius: 50%; margin-bottom: 7px; margin-top: 18px;
+      border: 2.5px solid #888; display: inline-block;
+      box-shadow: 0 0 0 2px #fff inset;
+    }
+    .tile .number {
+  font-size: 1.28em;
+  font-weight: bold;
+  letter-spacing: 1px;
+  margin-top: 2px;
+  text-shadow: 0 1px 2px #fff;
+}
+
+.tile.black .number {
+  color: #fff; /* 검정 타일은 하얀색 글씨 */
+}
+
+.tile.white .number {
+  color: #000; /* 하얀 타일은 검정색 글씨 */
+}
+
+.tile .joker {
+  font-size: 1.08em;
+  font-weight: bold;
+  margin-top: 5px;
+  letter-spacing: 2px;
+  text-shadow: none;
+}
+
+.tile.black .joker {
+  color: #fff; /* 검정 타일은 하얀색 글씨 */
+}
+
+.tile.white .joker {
+  color: #000; /* 하얀 타일은 검정색 글씨 */
+}
+    .tile .hiddenmark {
+      font-size: 2.2em; color: #bbb; margin-top: 2px;
+      letter-spacing: 2px;
+      text-shadow: 0 1px 3px #fff;
+    }
+    #guessForm {
+      margin: 15px 0 0 0;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      align-items: center;
+    }
+    #guessForm label {
+      font-size: 1.04em;
+      margin: 0 3px;
+    }
+    #guessForm select {
+      font-size: 1em;
+      padding: 4px 8px;
+      border-radius: 5px;
+      border: 1.5px solid #bdbdbd;
+      background: #f5f7fa;
+      margin-left: 4px;
+      margin-right: 6px;
+      transition: border-color 0.2s;
+    }
+    #guessForm select:focus {
+      border-color: #1976d2;
+      outline: none;
+    }
+    #guessForm button {
+      padding: 7px 16px;
+      font-size: 1em;
+      border-radius: 6px;
+      border: none;
+      background: linear-gradient(90deg, #1976d2 0%, #64b5f6 100%);
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+      margin-left: 8px;
+      transition: background 0.2s, box-shadow 0.2s;
+      box-shadow: 0 2px 8px #1976d220;
+    }
+    #guessForm button:hover {
+      background: linear-gradient(90deg, #1565c0 0%, #42a5f5 100%);
+      box-shadow: 0 4px 16px #1976d240;
+    }
+    #message {
+      font-size: 1.13em;
+      margin: 22px 0 0 0;
+      color: #1976d2;
+      min-height: 1.2em;
+      font-weight: bold;
+      letter-spacing: 1px;
+      text-shadow: 0 1px 2px #fff;
+    }
+    #numberSelector {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(135deg, #ffffff, #f0f4ff);
+  border: 2px solid #1976d2;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  text-align: center;
+}
+
+#numberSelector button {
+  margin: 8px;
+  padding: 10px 16px;
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #fff;
+  background: linear-gradient(90deg, #1976d2, #64b5f6);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+#numberSelector button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+#numberSelector button:active {
+  transform: scale(1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* 조커 버튼 스타일 */
+#numberSelector button.joker {
+  background: #ff0000; /* 연두색 */
+  color: #fff;
+}
+
+#numberSelector button.joker:hover {
+  background: #ff0000; /* hover 시 더 진한 연두색 */
+}
+
+#numberSelector button.joker:active {
+  background: #ff0000; /* active 상태에서 연두색 유지 */
+}
+
+/* 취소 버튼 스타일 */
+#numberSelector button.cancel {
+  background: #d32f2f; /* 빨간색 */
+  color: #fff;
+}
+
+#numberSelector button.cancel:hover {
+  background: #b71c1c; /* hover 시 더 진한 빨간색 */
+}
+
+#numberSelector button.cancel:active {
+  background: #d32f2f; /* active 상태에서 빨간색 유지 */
+}
+/* 메인 페이지로 돌아가기 버튼 스타일 */
+#backToMain {
+  padding: 12px 24px;
+  font-size: 1.1em;
+  font-weight: bold;
+  color: white;
+  background: linear-gradient(90deg, #4caf50, #66bb6a); /* 초록색 그라데이션 */
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 부드러운 그림자 */
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#backToMain:hover {
+  background: linear-gradient(90deg, #388e3c, #4caf50); /* 호버 시 더 진한 초록색 */
+  transform: scale(1.05); /* 호버 시 확대 효과 */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* 호버 시 그림자 증가 */
+}
+
+#backToMain:active {
+  background: #388e3c; /* 클릭 시 색상 변경 */
+  transform: scale(1); /* 클릭 시 원래 크기로 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 클릭 시 그림자 감소 */
+}
+    @media (max-width: 900px) {
+      #container { max-width: 99vw; padding: 12px 2vw 18px 2vw; }
+      #tiles { gap: 8px 4px; grid-template-columns: repeat(3, 72px); }
+      .tilebox { width: 54px; }
+      .tile { width: 50px; height: 74px; font-size: 1.05em; }
+      .tile-num { font-size: 0.9em; }
+    }
+    @media (max-width: 600px) {
+      #tiles { grid-template-columns: repeat(2, 72px); }
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <h1>다빈치코드 타일 추리하기</h1>
+    <div id="options">
+      <label>
+        맞힐 타일 개수:
+        <select id="tileCount">
+          <option value="4">4개</option>
+          <option value="5">5개</option>
+          <option value="6">6개</option>
+          <option value="7">7개</option>
+          <option value="8" selected>8개</option>
+          <option value="9">9개</option>
+          <option value="10">10개</option>
+          <option value="11">11개</option>
+          <option value="12">12개</option>
+        </select>
+      </label>
+      <label>
+        <input type="checkbox" id="jokerOption" checked>
+        조커 포함
+      </label>
+      <button id="newgameBtn" onclick="startGame()">새 게임</button>
+    </div>
+    <div id="tiles"></div>
+    <div id="message"></div>
+    <div id="numberSelector" style="display: none; position: fixed; background: #fff; border: 1px solid #ccc; border-radius: 8px; padding: 10px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);">
+      <div id="numberButtons"></div>
+      <button onclick="closeNumberSelector()">취소</button>
+    </div>
+    <div style="margin-top: 10px; display: flex; justify-content: center;">
+      <button id="backToMain" onclick="location.href='index.html'">메인 페이지로 돌아가기</button>
+    </div>
+  </div>
+  <script>
+    function makeTilePool(includeJoker = true) {
+      let pool = [];
+      for (let color of ['black', 'white']) {
+        for (let num = 0; num <= 11; num++) {
+          pool.push({ color, number: num, isJoker: false });
+        }
+      }
+      if (includeJoker) {
+        pool.push({ color: 'black', number: null, isJoker: true });
+        pool.push({ color: 'white', number: null, isJoker: true });
+      }
+      return pool;
+    }
+
+    function makeRandomTiles(tileCount = 8, includeJoker = true) {
+      let pool = makeTilePool(includeJoker);
+      let tiles = [];
+      while (tiles.length < tileCount && pool.length > 0) {
+        let idx = Math.floor(Math.random() * pool.length);
+        tiles.push({ ...pool[idx], revealed: false });
+        pool.splice(idx, 1);
+      }
+      let jokers = tiles.filter(t => t.isJoker);
+      let numbers = tiles.filter(t => !t.isJoker);
+      numbers.sort((a, b) => {
+        if (a.number !== b.number) return a.number - b.number;
+        if (a.color !== b.color) return a.color === 'black' ? -1 : 1;
+        return 0;
+      });
+      let result = [...numbers];
+      for (let joker of jokers) {
+        let pos = Math.floor(Math.random() * (result.length + 1));
+        result.splice(pos, 0, joker);
+      }
+      return result;
+    }
+
+    let tiles = [];
+    let includeJoker = true;
+    let tileCount = 8;
+
+    function renderTiles() {
+  const area = document.getElementById('tiles');
+  area.innerHTML = '';
+  tiles.forEach((tile, idx) => {
+    const tileBox = document.createElement('div');
+    tileBox.className = 'tilebox';
+    tileBox.innerHTML = `<div class="tile-num">${idx + 1}번</div>`;
+    const div = document.createElement('div');
+    div.className = `tile ${tile.color} ${tile.revealed ? 'revealed' : ''}`;
+    div.innerHTML = `<span class="color-dot" style="background:${tile.color === 'black' ? '#222' : '#fff'}; border-color:${tile.color === 'black' ? '#444' : '#bbb'}"></span>`;
+    if (tile.revealed) {
+      if (tile.isJoker) {
+        div.innerHTML += `<span class="joker">조커</span>`;
+      } else {
+        div.innerHTML += `<span class="number">${tile.number}</span>`;
+      }
+    } else {
+      div.innerHTML += `<span class="hiddenmark">?</span>`;
+    }
+
+    // 타일 클릭 이벤트 추가
+    div.onclick = () => {
+      if (tile.revealed) {
+        showMsg('이미 공개된 타일입니다.', '#d32f2f');
+        return;
+      }
+      openNumberSelector(idx); // 숫자 선택 UI 열기
+    };
+
+    tileBox.appendChild(div);
+    area.appendChild(tileBox);
+  });
+}
+function openNumberSelector(pos) {
+  const selector = document.getElementById('numberSelector');
+  const buttons = document.getElementById('numberButtons');
+  buttons.innerHTML = '';
+
+  // 숫자 버튼 생성
+  for (let n = 0; n <= 11; n++) {
+    const btn = document.createElement('button');
+    btn.textContent = n;
+    btn.onclick = () => guessTile(pos, n);
+    buttons.appendChild(btn);
+  }
+
+  // 조커 버튼 추가
+  const jokerBtn = document.createElement('button');
+  jokerBtn.textContent = '조커';
+  jokerBtn.className = 'joker'; // 조커 버튼에 클래스 추가
+  jokerBtn.onclick = () => guessTile(pos, 'joker');
+  buttons.appendChild(jokerBtn);
+
+  // UI 표시
+  selector.style.display = 'block';
+}
+function closeNumberSelector() {
+  const selector = document.getElementById('numberSelector');
+  selector.style.display = 'none';
+}
+    
+function guessTile(pos, numberVal) {
+  closeNumberSelector(); // 숫자 선택 UI 닫기
+
+  if (tiles[pos].revealed) {
+    showMsg('이미 공개된 타일입니다.', '#d32f2f');
+    return;
+  }
+
+  if (numberVal === 'joker') {
+    if (tiles[pos].isJoker) {
+      tiles[pos].revealed = true;
+      renderTiles();
+      checkWin();
+      showMsg('정답! 조커 타일이 공개되었습니다.', '#388e3c');
+    } else {
+      showMsg('오답! 조커가 아닙니다.', '#d32f2f');
+    }
+    return;
+  }
+
+  if (!tiles[pos].isJoker && tiles[pos].number == numberVal) {
+    tiles[pos].revealed = true;
+    renderTiles();
+    checkWin();
+    showMsg('정답! 타일이 공개되었습니다.', '#388e3c');
+    return;
+  }
+  showMsg('오답! 다시 시도하세요.', '#d32f2f');
+}
+
+    function checkWin() {
+      if (tiles.every(t => t.revealed)) {
+        showMsg('정답! 모든 타일을 맞췄습니다!', '#388e3c');
+      }
+    }
+
+    function showMsg(msg, color) {
+      const m = document.getElementById('message');
+      m.textContent = msg;
+      m.style.color = color || '#1976d2';
+    }
+
+    function revealAllTiles() {
+      tiles.forEach(t => t.revealed = true);
+      renderTiles();
+      showMsg('모든 타일이 공개되었습니다.', '#1976d2');
+    }
+
+    function startGame() {
+      includeJoker = document.getElementById('jokerOption').checked;
+      tileCount = parseInt(document.getElementById('tileCount').value, 10);
+      tiles = makeRandomTiles(tileCount, includeJoker);
+      renderTiles();
+      showMsg('');
+    }
+
+    // 최초 실행
+    startGame();
+  </script>
+</body>
+</html>

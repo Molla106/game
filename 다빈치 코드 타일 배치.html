@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>다빈치코드 타일 배치 문제</title>
+    <style>
+    /* 전체 배경 및 폰트 스타일 */
+body {
+    font-family: 'Inter', Arial, sans-serif;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+    color: #333;
+}
+
+/* 제목 스타일 */
+h1 {
+    font-size: 2em;
+    color: #4CAF50;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* 메인 페이지로 돌아가기 버튼 스타일 */
+#backToMain {
+    padding: 10px 20px;
+    font-size: 1em;
+    font-weight: bold;
+    color: white;
+    background: linear-gradient(90deg, #4CAF50, #66BB6A);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    margin-bottom: 20px;
+}
+
+#backToMain:hover {
+    background: linear-gradient(90deg, #388E3C, #4CAF50);
+    transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+#backToMain:active {
+    background: #388E3C;
+    transform: scale(1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 타일 그리드 스타일 */
+.tile-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 400px;
+    margin: 0 auto 20px auto;
+}
+
+/* 타일 스타일 */
+.tile {
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+    text-align: center;
+    line-height: 50px;
+    margin: 5px;
+    cursor: pointer;
+    border: 2px solid #333;
+    border-radius: 8px;
+    font-size: 1.2em;
+    font-weight: bold;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.tile:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* 타일 색상 */
+.black {
+    background-color: #333;
+    color: white;
+}
+
+.white {
+    background-color: white;
+    color: black;
+}
+
+.joker-black {
+    background-color: #444;
+    color: white;
+}
+
+.joker-white {
+    background-color: #ddd;
+    color: black;
+}
+
+/* 선택된 타일 스타일 */
+.selected {
+    background-color: rgba(255, 0, 0, 0.546);
+    border: 2px solid red;
+}
+
+/* 결과 영역 스타일 */
+#result {
+    margin-top: 20px;
+    padding: 10px;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+    </style>
+</head>
+<body>
+    <h1>다빈치코드 타일 배치 문제</h1>
+    <button id="backToMain" onclick="location.href='index.html'">메인 페이지로 돌아가기</button>
+    <div>
+        <h2>타일을 선택하세요:</h2>
+        <div id="tileGrid" class="tile-grid"></div>
+        <div>
+            <label for="jokerCount">조커 타일 개수:</label>
+            <select id="jokerCount">
+                <option value="0">0</option>
+                <option value="1">1 (검정)</option>
+                <option value="2">2 (검정, 흰색)</option>
+            </select>
+        </div>
+        <div>
+            <input type="checkbox" id="showOnlyCounts" name="showOnlyCounts">
+            <label for="showOnlyCounts">경우의 수만 보기</label>
+        </div>
+        <button onclick="findPossibleArrangements()">가능한 배열 찾기</button>
+    </div>
+    <div id="result"></div>
+</body>
+
+    <script>
+        function createTileGrid() {
+            const tileGrid = document.getElementById('tileGrid');
+            tileGrid.innerHTML = '';
+            
+            // 숫자 타일 생성
+            for (let i = 0; i <= 11; i++) {
+                const blackTile = createTile('B', i);
+                const whiteTile = createTile('W', i);
+                tileGrid.appendChild(blackTile);
+                tileGrid.appendChild(whiteTile);
+            }
+
+            // 조커 타일 추가
+            const jokerCount = parseInt(document.getElementById('jokerCount').value);
+            
+            if (jokerCount >= 1) {
+                const blackJoker = createTile('BJ', 'J');
+                tileGrid.appendChild(blackJoker);
+            }
+            
+            if (jokerCount === 2) {
+                const whiteJoker = createTile('WJ', 'J');
+                tileGrid.appendChild(whiteJoker);
+            }
+        }
+
+        function createTile(color, number) {
+            const tile = document.createElement('div');
+            
+            if (color === 'BJ') {
+                tile.className = 'tile joker-black';
+                tile.dataset.tile = 'BJ';
+                tile.innerHTML = `<span class="tile-number">J</span>`;
+            } else if (color === 'WJ') {
+                tile.className = 'tile joker-white';
+                tile.dataset.tile = 'WJ';
+                tile.innerHTML = `<span class="tile-number">J</span>`;
+            } else {
+                tile.className = `tile ${color === 'B' ? 'black' : 'white'}`;
+                tile.dataset.tile = `${color}${number}`;
+                tile.innerHTML = `<span class="tile-number">${number}</span>`;
+            }
+
+            tile.onclick = () => toggleSelection(tile);
+            
+            return tile;
+        }
+
+        function toggleSelection(tile) {
+            const selectedTiles = document.querySelectorAll('.tile.selected');
+            
+            if (selectedTiles.length >= 2 && !tile.classList.contains('selected')) {
+                alert("최대 두 개의 타일을 선택할 수 있습니다.");
+                return;
+            }
+            
+            tile.classList.toggle('selected');
+        }
+
+        function findPossibleArrangements() {
+            const selectedTiles = Array.from(document.querySelectorAll('.tile.selected'));
+            
+            if (selectedTiles.length !== 2) {
+                document.getElementById('result').innerHTML = "오류: 두 개의 타일을 선택해야 합니다.";
+                return;
+            }
+
+            const tile1 = selectedTiles[0].dataset.tile;
+            const tile2 = selectedTiles[1].dataset.tile;
+            
+            const showOnlyCounts = document.getElementById('showOnlyCounts').checked;
+
+            let possibleTiles = [];
+
+            // 숫자 타일 추가
+            let startNum = parseInt(tile1.slice(1));
+            let endNum = parseInt(tile2.slice(1));
+            for (let i = startNum; i <= endNum; i++) {
+                possibleTiles.push(`B${i}`);
+                possibleTiles.push(`W${i}`);
+            }
+
+            // 조커 타일 추가
+            if (document.getElementById('jokerCount').value >= "1") {
+                possibleTiles.push("BJ");
+                
+                if (document.getElementById('jokerCount').value === "2") {
+                    possibleTiles.push("WJ");
+                }
+            }
+
+            let combinations = generateCombinations(possibleTiles);
+
+            let arrangementsByCount = {};
+            let totalArrangements = 0; // 총 경우의 수
+
+            combinations.forEach(combination => {
+                let permutations = generatePermutations(combination);
+                
+                permutations.forEach(perm => {
+                    if (isValidArrangement(perm, tile1, tile2)) {
+                        let count = perm.length - 2;
+                        
+                        if (!arrangementsByCount[count]) {
+                            arrangementsByCount[count] = [];
+                        }
+                        
+                        arrangementsByCount[count].push(perm);
+                        totalArrangements++; // 총 경우의 수 증가
+                    }
+                });
+            });
+
+            displayArrangements(arrangementsByCount, showOnlyCounts, totalArrangements);
+        }
+
+        function generateCombinations(tiles) {
+           let result = [[]];
+           
+           for (let tile of tiles) {
+               let newSubsets = result.map(subset => subset.concat(tile));
+               result.push(...newSubsets);
+           }
+           
+           return result;
+       }
+
+       function generatePermutations(tiles) {
+           if (tiles.length <= 1) return [tiles];
+           
+           let result = [];
+           
+           for (let i = 0; i < tiles.length; i++) {
+               let rest = tiles.slice(0, i).concat(tiles.slice(i + 1));
+               let perms = generatePermutations(rest);
+               perms.forEach(perm => result.push([tiles[i]].concat(perm)));
+           }
+           
+           return result;
+       }
+
+       function isValidArrangement(perm, start, end) {
+           return perm[0] === start && perm[perm.length - 1] === end && 
+                  perm.every((tile, i) => 
+                      tile.endsWith('J') || i === 0 || perm[i-1].endsWith('J') ||
+                      parseInt(tile.slice(1)) > parseInt(perm[i-1].slice(1)) || 
+                      (parseInt(tile.slice(1)) === parseInt(perm[i-1].slice(1)) && tile[0] > perm[i-1][0])
+                  );
+       }
+
+       function displayArrangements(arrangementsByCount, showOnlyCounts, totalArrangements) {
+           let resultHTML = `<h2>가능한 배열:</h2>`;
+           let totalCount = 0;
+           
+           Object.keys(arrangementsByCount).sort((a, b) => a - b).forEach(count => {
+               let arrangementCount = arrangementsByCount[count].length;
+               resultHTML += `<h3>${count}개의 추가 타일이 있는 경우 (${arrangementCount}개)</h3>`;
+               totalCount += arrangementCount;
+               
+               if (!showOnlyCounts) {
+                   arrangementsByCount[count].forEach(arr => {
+                       resultHTML += '<div class="arrangement">';
+                       arr.forEach(tile => resultHTML += createTileHTML(tile));
+                       resultHTML += '</div>';
+                   });
+               }
+           });
+           
+           resultHTML += `<h3>총 경우의 수: ${totalArrangements}개</h3>`;
+           document.getElementById('result').innerHTML = resultHTML;
+       }
+
+       function createTileHTML(tile) {
+           const colorClass =
+               tile.startsWith("BJ") ? "joker-black" :
+               tile.startsWith("WJ") ? "joker-white" :
+               tile.startsWith("B") ? "black" : "white";
+               
+           const number =
+               tile.endsWith("J") ? "J" : parseInt(tile.slice(1));
+               
+           return `<div class="tile ${colorClass}"><span class="tile-number">${number}</span></div>`;
+       }
+
+       createTileGrid();
+   </script>
+</body>
+</html>

@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>더 지니어스 흑과 백</title>
+  <meta name="viewport" content="width=520, initial-scale=1">
+  <style>
+    body {
+  font-family: 'Segoe UI', '맑은 고딕', Arial, sans-serif;
+  background: linear-gradient(135deg, #f5f7fa, #e3eafc);
+  margin: 0;
+  padding: 0;
+}
+
+#container {
+  max-width: 520px;
+  margin: 30px auto;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+  padding: 24px 16px 20px 16px;
+}
+
+h1 {
+  color: #1a237e;
+  font-size: 1.8em;
+  margin: 0 0 20px 0;
+  text-align: center;
+}
+
+.round-info {
+  font-size: 1.2em;
+  color: #37474f;
+  margin: 0 0 16px 0;
+  text-align: center;
+}
+
+.tiles {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.tile-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 8px;
+  border: none;
+  font-size: 1.2em;
+  font-weight: bold;
+  cursor: pointer;
+  margin: 0;
+  background: #e3eafc;
+  color: #222;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: background 0.2s, color 0.2s, transform 0.2s;
+  border: 2px solid #bdbdbd;
+}
+
+.tile-btn:hover {
+  transform: scale(1.1);
+  background: #c5d6f9;
+}
+
+.tile-btn.used {
+  background: #cfd8dc;
+  color: #aaa;
+  border-color: #bdbdbd;
+  cursor: not-allowed;
+}
+
+.tile-btn.selected {
+  background: #1976d2;
+  color: #fff;
+  border-color: #1976d2;
+}
+
+.tile-btn.odd {
+  box-shadow: 0 0 0 2.5px #fff inset;
+}
+
+.tile-btn.even {
+  box-shadow: 0 0 0 2.5px #222 inset;
+}
+
+#submitBtn {
+  padding: 10px 20px;
+  font-size: 1.2em;
+  border-radius: 8px;
+  border: none;
+  background: linear-gradient(90deg, #1976d2 0%, #64b5f6 100%);
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  margin: 16px auto; /* 중앙 정렬 */
+  display: block; /* 중앙 정렬을 위한 block 설정 */
+  transition: background 0.2s, transform 0.2s;
+  text-align: center;
+}
+
+#submitBtn:hover {
+  transform: scale(1.05);
+  background: linear-gradient(90deg, #1565c0 0%, #42a5f5 100%);
+}
+
+#submitBtn:disabled {
+  background: #bdbdbd;
+  color: #fff;
+  cursor: not-allowed;
+}
+
+table.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 18px;
+  font-size: 1.1em;
+}
+
+table.history-table th,
+table.history-table td {
+  border: 1px solid #bdbdbd;
+  padding: 10px 0;
+  text-align: center;
+}
+
+table.history-table th {
+  background: #e3eafc;
+  color: #1976d2;
+  font-weight: bold;
+}
+
+table.history-table td.win {
+  background: #c8e6c9;
+}
+
+table.history-table td.lose {
+  background: #ffcdd2;
+}
+
+table.history-table td.tie {
+  background: #fff9c4;
+}
+.round-info {
+  font-size: 1.2em;
+  color: #37474f;
+  margin: 0 auto 16px auto;
+  text-align: center;
+  padding: 16px;
+  border: 2px solid #bdbdbd;
+  border-radius: 12px;
+  background: #f9f9f9;
+  max-width: 400px;
+}
+
+.player-title {
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #1976d2;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.vs {
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #37474f;
+  margin: 16px 0;
+  text-align: center;
+}
+
+#newGameBtn {
+  padding: 12px 24px;
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #fff;
+  background: linear-gradient(90deg, #43a047, #66bb6a);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  margin: 20px auto;
+  display: block;
+  transition: background 0.2s, transform 0.2s;
+  text-align: center;
+}
+
+#newGameBtn:hover {
+  transform: scale(1.05);
+  background: linear-gradient(90deg, #388e3c, #4caf50);
+}
+
+#newGameBtn:active {
+  transform: scale(1);
+  background: #43a047;
+}
+/* 메인 페이지로 돌아가기 버튼 스타일 */
+#backToMain {
+  padding: 12px 24px;
+  font-size: 1.1em;
+  font-weight: bold;
+  color: white;
+  background: linear-gradient(90deg, #4caf50, #66bb6a); /* 초록색 그라데이션 */
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 부드러운 그림자 */
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#backToMain:hover {
+  background: linear-gradient(90deg, #388e3c, #4caf50); /* 호버 시 더 진한 초록색 */
+  transform: scale(1.05); /* 호버 시 확대 효과 */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* 호버 시 그림자 증가 */
+}
+
+#backToMain:active {
+  background: #388e3c; /* 클릭 시 색상 변경 */
+  transform: scale(1); /* 클릭 시 원래 크기로 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 클릭 시 그림자 감소 */
+}
+@media (max-width: 600px) {
+  #container {
+    max-width: 95vw;
+    padding: 10px 2vw 16px 2vw;
+  }
+
+  .tiles {
+    gap: 4px;
+  }
+
+  .tile-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 1em;
+  }
+
+  table.history-table th,
+  table.history-table td {
+    font-size: 0.92em;
+    padding: 6px 0;
+  }
+}
+  </style>
+</head>
+<body>
+  <div id="container">
+    <h1>더 지니어스 흑과 백</h1>
+    <div class="round-info" id="roundInfo"></div>
+    <div id="resultArea"></div>
+    <div class="player" id="player1Area">
+      <div class="player-title">플레이어 (나)</div>
+      <div class="tiles" id="tiles1"></div>
+    </div>
+    <div class="vs">VS</div>
+    <div class="player" id="player2Area">
+      <div class="player-title">AI</div>
+      <div class="tiles" id="tiles2"></div>
+    </div>
+    <button id="submitBtn" onclick="submitTurn()" disabled>제출</button>
+    <div id="scoreboard"></div>
+    <div id="historyArea"></div>
+    <button id="newGameBtn" onclick="startGame()" style="display:none;">새 게임</button>
+  </div>
+  <div style="margin-top: 10px; display: flex; justify-content: center;">
+    <button id="backToMain" onclick="location.href='index.html'">메인 페이지로 돌아가기</button>
+  </div>
+  <script>
+    let tiles1, tiles2, used1, used2, selected1, aiSelected, round, history, score1, score2, finished;
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+function startGame() {
+  tiles1 = [1,2,3,4,5,6,7,8,9];
+  tiles2 = [1,2,3,4,5,6,7,8,9];
+  shuffle(tiles2); // AI 패를 무작위로 섞는다! ← 이 줄을 추가
+  used1 = Array(9).fill(false);
+  used2 = Array(9).fill(false);
+  selected1 = null;
+  aiSelected = null;
+  round = 1;
+  history = [];
+  score1 = 0;
+  score2 = 0;
+  finished = false;
+  document.getElementById('newGameBtn').style.display = 'none';
+  document.getElementById('historyArea').innerHTML = '';
+  render();
+}
+function render() {
+  document.getElementById('roundInfo').textContent = `라운드 ${round} / 9`;
+  renderTiles('tiles1', tiles1, used1, selected1, true);
+  renderTiles('tiles2', tiles2, used2, null, false, true);
+  document.getElementById('submitBtn').disabled = selected1 === null || finished;
+  renderResult(); // 결과와 점수를 라운드 아래에 표시
+}
+document.addEventListener('keydown', function (event) {
+  if (event.key === 'Enter') {
+    // Enter 키를 눌렀을 때 submitTurn 호출
+    if (!document.getElementById('submitBtn').disabled) {
+      submitTurn();
+    }
+  }
+});
+    function renderTiles(areaId, tiles, used, selected, isPlayer, hideAll=false) {
+      const area = document.getElementById(areaId);
+      area.innerHTML = '';
+      tiles.forEach((num, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'tile-btn ' + (num%2===1?'odd':'even') + (used[i]?' used':'') + (selected===i?' selected':'');
+        btn.textContent = hideAll ? '?' : num;
+        btn.disabled = used[i] || finished || !isPlayer;
+        btn.onclick = function() {
+          if (finished || used[i] || !isPlayer) return;
+          selected1 = (selected1 === i ? null : i);
+          render();
+        };
+        area.appendChild(btn);
+      });
+    }
+
+    function aiSelect() {
+      // AI: 남은 타일 중 무작위 선택 (전략적 AI로 바꿀 수 있음)
+      let available = tiles2.map((n,i)=>used2[i]?null:i).filter(i=>i!==null);
+      if (available.length === 0) return null;
+      let idx = available[Math.floor(Math.random()*available.length)];
+      return idx;
+    }
+
+    function submitTurn() {
+      if (selected1 === null) return;
+      aiSelected = aiSelect();
+      const n1 = tiles1[selected1];
+      const n2 = tiles2[aiSelected];
+      used1[selected1] = true;
+      used2[aiSelected] = true;
+      let res1 = 0, res2 = 0;
+      // 1이 9를 이긴다
+      if (n1===1 && n2===9) { res1=1; res2=-1; }
+      else if (n1===9 && n2===1) { res1=-1; res2=1; }
+      else if (n1>n2) { res1=1; res2=-1; }
+      else if (n1<n2) { res1=-1; res2=1; }
+      else { res1=0; res2=0; }
+      if (res1>0) score1++; else if (res2>0) score2++;
+      history.push({n1, n2, res1, res2});
+      selected1 = null; aiSelected = null;
+      round++;
+      if (round>9) finished = true;
+      render();
+      if (finished) {
+        document.getElementById('newGameBtn').style.display = '';
+        renderHistory();
+      }
+    }
+
+    function renderResult() {
+  const roundInfo = document.getElementById('roundInfo');
+  if (history.length === 0) {
+    roundInfo.innerHTML = `라운드 ${round} / 9<br><span>점수 현황: 플레이어 ${score1}점 / AI ${score2}점</span>`;
+    return;
+  }
+  const last = history[history.length - 1];
+  let msg = '';
+  if (last.res1 > 0) msg = '플레이어 승!';
+  else if (last.res2 > 0) msg = 'AI 승!';
+  else msg = '무승부!';
+  roundInfo.innerHTML = `
+    라운드 ${round} / 9<br>
+    <span>이번 라운드 결과: <b>${msg}</b></span><br>
+    <span>점수 현황: 플레이어 ${score1}점 / AI ${score2}점</span>
+  `;
+}
+
+function renderScore() {
+  let msg = `플레이어: ${score1}점 / AI: ${score2}점`;
+  if (finished) {
+    if (score1 > score2) msg += ' → 플레이어 최종 승리!';
+    else if (score2 > score1) msg += ' → AI 최종 승리!';
+    else msg += ' → 무승부!';
+  }
+  document.getElementById('scoreboard').textContent = msg;
+}
+
+function renderHistory() {
+  const area = document.getElementById('historyArea');
+  area.innerHTML = `<table class="history-table">
+    <thead>
+      <tr>
+        <th>라운드</th>
+        <th>플레이어</th>
+        <th>AI</th>
+        <th>승패</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${history.map((h, i) => {
+        let resClass = h.res1 > 0 ? 'win' : (h.res2 > 0 ? 'lose' : 'tie');
+        let resText = h.res1 > 0 ? '승' : (h.res2 > 0 ? '패' : '무');
+        return `<tr>
+          <td>${i + 1}</td>
+          <td>${h.n1}</td>
+          <td>${h.n2}</td>
+          <td class="${resClass}">${resText}</td>
+        </tr>`;
+      }).join('')}
+    </tbody>
+  </table>`;
+}
+
+    startGame();
+  </script>
+</body>
+</html>

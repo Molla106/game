@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>더 지니어스 결!합!</title>
+  <meta name="viewport" content="width=540, initial-scale=1" />
+  <style>
+    /* 메인 페이지로 돌아가기 버튼 스타일 */
+#backToMain {
+  padding: 12px 24px;
+  font-size: 1.1em;
+  font-weight: bold;
+  color: white;
+  background: linear-gradient(90deg, #4caf50, #66bb6a); /* 초록색 그라데이션 */
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 부드러운 그림자 */
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#backToMain:hover {
+  background: linear-gradient(90deg, #388e3c, #4caf50); /* 호버 시 더 진한 초록색 */
+  transform: scale(1.05); /* 호버 시 확대 효과 */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* 호버 시 그림자 증가 */
+}
+
+#backToMain:active {
+  background: #388e3c; /* 클릭 시 색상 변경 */
+  transform: scale(1); /* 클릭 시 원래 크기로 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 클릭 시 그림자 감소 */
+}
+    body {
+      font-family: '맑은 고딕', Arial, sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 0;
+    }
+    #foundSets {
+  font-size: 1.2em; /* 폰트 크기 증가 */
+  line-height: 1.5; /* 줄 간격 조정 */
+}
+    #container {
+      max-width: 540px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 2px 12px #0001;
+      padding: 18px 0 10px 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      color: #333;
+      font-size: 1.5em;
+      margin: 10px 0 8px 0;
+    }
+    #scoreboard {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 6px 0 0 0;
+    }
+    .team-score {
+  background: #f0f7fa;
+  border-radius: 6px;
+  padding: 12px 20px;
+  font-size: 1.1em;
+  border: 3px solid #2196f3;
+  text-align: center;
+  min-width: 100px;
+  transition: transform 0.2s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+.team-score:hover {
+  transform: translateY(-5px);
+  background-color: #e3f2fd;
+}
+
+.team-score.selected {
+  background: #ffe082; /* 선택된 모둠의 배경색 (밝은 노란색) */
+  border-color: #ff9800; /* 선택된 모둠의 테두리 색상 (주황색) */
+  font-weight: bold; /* 텍스트를 굵게 */
+  box-shadow: 0 4px 15px rgba(255, 152, 0, 0.5); /* 선택된 모둠에 그림자 추가 */
+  transform: scale(1.05); /* 선택된 모둠을 약간 확대 */
+}
+    .team-btn {
+      padding: 6px 10px;
+      border-radius: 5px;
+      border: none;
+      font-size: 1em;
+      font-weight: bold;
+      background: #eee;
+      color: #333;
+      cursor: pointer;
+      transition: 0.2s;
+      margin: 0 1px;
+    }
+    .team-btn.selected {
+      background: #1976d2;
+      color: #fff;
+    }
+    #cards {
+      display: grid;
+      grid-template-columns: repeat(3, 110px);
+      grid-template-rows: repeat(3, 160px);
+      gap: 8px;
+      justify-content: center;
+      margin: 10px 0 10px 0;
+      width: 340px;
+    }
+    .card {
+      width: 100px;
+      height: 150px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #aaa;
+      border-radius: 12px;
+      background: #fff;
+      cursor: pointer;
+      transition: 0.2s;
+      font-weight: bold;
+      box-sizing: border-box;
+      font-size: 1em;
+      position: relative;
+      user-select: none;
+      overflow: hidden;
+    }
+    .card.selected {
+  border: 3px solid #ff9800; /* 선택된 카드의 테두리 색상 (주황색) */
+  background: #fff3e0; /* 선택된 카드의 배경색 (밝은 주황색) */
+  transform: scale(1.1); /* 선택된 카드를 약간 확대 */
+  box-shadow: 0 4px 15px rgba(255, 152, 0, 0.5); /* 선택된 카드에 그림자 추가 */
+}
+    .card .number {
+      position: absolute;
+      top: 7px;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      font-size: 1.5em;
+      font-weight: bold;
+      color: #444;
+      letter-spacing: 1px;
+    }
+    .card .shape {
+      font-size: 2.1em;
+      margin: 25px 0 4px 0;
+    }
+    .card .colorname {
+      font-size: 1em;
+    }
+    .card .bgname {
+      font-size: 0.95em;
+      color: #000;
+    }
+    #controls button {
+  padding: 12px 20px; /* 버튼 크기 키움 */
+  font-size: 1.2em; /* 글자 크기 키움 */
+  border-radius: 8px; /* 둥근 모서리 */
+}
+
+#newGame {
+  margin: 10px 0; /* 제목과 간격 조정 */
+  padding: 10px 20px;
+  font-size: 1.1em;
+  background: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#newGame:hover {
+  background: #45a049;
+}
+    button:disabled {
+      background: #ccc;
+    }
+    #message {
+      font-size: 1.1em;
+      margin: 8px 0 0 0;
+      color: #d32f2f;
+      min-height: 1.2em;
+    }
+    @media (max-width: 600px) {
+      #container {
+        max-width: 100vw;
+        padding: 6px 0 6px 0;
+      }
+      #cards {
+        width: 99vw;
+        max-width: 340px;
+      }
+      .card {
+        width: 90px;
+        height: 130px;
+        font-size: 0.95em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <h1>더 지니어스 결!합!</h1>
+    <button id="newGame">새 게임</button>
+    <div id="scoreboard"></div>
+    <div id="cards"></div>
+    <div id="controls">
+      <button id="checkSet" disabled>합!</button>
+      <button id="declareNoSet">결!</button>
+      <button id="hint">힌트</button>
+    </div>
+    <div id="message"></div>
+    <div id="foundSets" style="margin-top: 20px; padding: 10px; background: #f9f9f9; border-radius: 8px;"></div>
+  </div>
+  <div style="margin-top: 10px; display: flex; justify-content: center;">
+    <button id="backToMain" onclick="location.href='index.html'">메인 페이지로 돌아가기</button>
+  </div>
+    </div>
+  <script>
+    const shapes = ['●', '▲', '■'];
+    // 파란색 도형 색상 변경 (#64b5f6 밝은 하늘색)
+    const colors = ['red', 'green', '#64b5f6'];
+    const colorNames = ['빨강', '초록', '파랑'];
+    const backgrounds = ['#fff9c4', '#f7f3f2', '#c9ffcb']; // 연노랑, 흰색, 연두색
+    const bgNames = ['노란', '흰', '연두'];
+
+    const TEAM_COUNT = 6;
+    let teamScores = Array(TEAM_COUNT).fill(0);
+    let selectedTeam = 0;
+
+    function generateCards() {
+      let pool = [];
+      for (let s = 0; s < 3; s++)
+        for (let c = 0; c < 3; c++)
+          for (let b = 0; b < 3; b++)
+            pool.push({ shape: s, color: c, bg: b });
+      pool = pool.sort(() => Math.random() - 0.5);
+      return pool.slice(0, 9);
+    }
+
+    function findSet(cards) {
+  const sets = [];
+  for (let i = 0; i < 7; i++) {
+    for (let j = i + 1; j < 8; j++) {
+      for (let k = j + 1; k < 9; k++) {
+        if (isSet([cards[i], cards[j], cards[k]])) {
+          sets.push([i, j, k]);
+        }
+      }
+    }
+  }
+  return sets.length > 0 ? sets : null; // 합이 있으면 배열 반환, 없으면 null 반환
+}
+
+    function isSet(arr) {
+      for (let prop of ['shape', 'color', 'bg']) {
+        const vals = arr.map(card => card[prop]);
+        const allSame = vals[0] === vals[1] && vals[1] === vals[2];
+        const allDiff = (new Set(vals)).size === 3;
+        if (!(allSame || allDiff)) return false;
+      }
+      return true;
+    }
+
+    function renderCards() {
+  const area = document.getElementById('cards');
+  area.innerHTML = '';
+  cards.forEach((card, idx) => {
+    const div = document.createElement('div');
+    div.className = 'card' + (selected.includes(idx) ? ' selected' : '');
+    div.style.background = backgrounds[card.bg];
+    div.style.color = colors[card.color];
+    div.innerHTML = `
+      <div class="number">${idx + 1}</div>
+      <div class="shape">${shapes[card.shape]}</div>
+      <div class="colorname">${colorNames[card.color]}</div>
+      <div class="bgname">${bgNames[card.bg]}색바탕</div>
+    `;
+    div.onclick = () => {
+      if (selected.includes(idx)) selected = selected.filter(i => i !== idx);
+      else if (selected.length < 3) selected.push(idx);
+      renderCards();
+      document.getElementById('checkSet').disabled = (selected.length !== 3);
+    };
+    area.appendChild(div);
+  });
+}
+
+function renderFoundSets() {
+  const area = document.getElementById('foundSets');
+  area.innerHTML = '<h3>찾은 합:</h3>';
+  foundSets.forEach((set, index) => {
+    const div = document.createElement('div');
+    div.textContent = `합 ${index + 1}: 카드 ${set.map(i => i + 1).join(', ')}`;
+    div.style.margin = '5px 0';
+    area.appendChild(div);
+  });
+}
+    function renderScoreboard() {
+  const area = document.getElementById('scoreboard');
+  area.innerHTML = '';
+
+  // 점수 기준으로 정렬된 순위를 계산
+  const sortedScores = [...teamScores].sort((a, b) => b - a);
+  const firstPlaceScore = sortedScores[0];
+  const lastPlaceScore = sortedScores[sortedScores.length - 1];
+
+  for (let i = 0; i < TEAM_COUNT; i++) {
+    const span = document.createElement('span');
+    span.className = 'team-score' + (selectedTeam === i ? ' selected' : ''); // 선택된 모둠에 클래스 추가
+
+    // 1등은 빨간색, 6등은 파란색으로 표시
+    if (teamScores[i] === firstPlaceScore) {
+      span.style.color = 'red';
+    } else if (teamScores[i] === lastPlaceScore) {
+      span.style.color = 'blue';
+    } else {
+      span.style.color = '#333'; // 기본 색상
+    }
+
+    // 점수표 내용
+    span.innerHTML = `<b>${i + 1}모둠</b>: ${teamScores[i]}점`;
+
+    // 클릭 이벤트 추가
+    span.onclick = () => {
+      selectedTeam = i; // 클릭한 모둠을 선택
+      renderScoreboard(); // 점수표 다시 렌더링
+    };
+
+    area.appendChild(span);
+  }
+}
+
+    let cards = [];
+    let foundSets = [];
+    let selected = [];
+
+    function showMsg(msg, color) {
+      const el = document.getElementById('message');
+      el.textContent = msg;
+      el.style.color = color || '#d32f2f';
+    }
+
+    function startGame() {
+      cards = generateCards();
+      selected = [];
+      renderCards();
+      showMsg('');
+      document.getElementById('checkSet').disabled = true;
+    }
+
+    document.getElementById('checkSet').onclick = function () {
+  const trio = selected.map((i) => cards[i]);
+  const trioKey = JSON.stringify(selected.sort()); // 정렬하여 중복 방지
+
+  if (foundSets.some(set => JSON.stringify(set) === trioKey)) {
+    showMsg('이미 찾은 합입니다.', '#d32f2f'); // 중복된 합 메시지
+  } else if (isSet(trio)) {
+    foundSets.push([...selected]); // 찾은 합 저장
+    teamScores[selectedTeam] += 1;
+    showMsg(`${selectedTeam + 1}모둠 정답! 합입니다.`, '#388e3c');
+    renderFoundSets(); // 찾은 합 화면에 표시
+  } else {
+    teamScores[selectedTeam] -= 1;
+    showMsg(`${selectedTeam + 1}모둠 오답! 합이 아닙니다.`, '#d32f2f');
+  }
+
+  selected = [];
+  renderCards();
+  renderScoreboard();
+  document.getElementById('checkSet').disabled = true;
+};
+
+  selected = [];
+  renderCards();
+  renderScoreboard();
+  document.getElementById('checkSet').disabled = true;;
+
+  document.getElementById('declareNoSet').onclick = function () {
+  const sets = findSet(cards); // 현재 합을 만들 수 있는 카드 조합 찾기
+  const remainingSets = sets ? sets.filter(set => !foundSets.some(found => JSON.stringify(found) === JSON.stringify(set))) : []; // 이미 찾은 합 제외
+
+  if (remainingSets.length > 0) {
+    teamScores[selectedTeam] -= 2;
+    showMsg(`${selectedTeam + 1}모둠 오답! 아직 합이 남아있습니다!`, '#d32f2f');
+  } else {
+    teamScores[selectedTeam] += 3;
+    showMsg(`${selectedTeam + 1}모둠 정답! 더 이상 합이 없습니다.`, '#388e3c');
+    setTimeout(() => {
+      startGame(); // 모든 합을 찾은 후에만 게임 리셋
+      foundSets = []; // 찾은 합 초기화
+      renderFoundSets(); // 찾은 합 화면 초기화
+    }, 1200);
+  }
+  renderScoreboard();
+};
+
+document.getElementById('hint').onclick = function () {
+  const sets = findSet(cards); // 현재 합을 만들 수 있는 카드 조합 찾기
+  const remainingSets = sets ? sets.filter(set => !foundSets.some(found => JSON.stringify(found) === JSON.stringify(set))) : []; // 이미 찾은 합 제외
+
+  if (remainingSets.length > 0) {
+    const randomSet = remainingSets[Math.floor(Math.random() * remainingSets.length)]; // 랜덤으로 남은 합 중 하나 선택
+    const randomCardIndex = randomSet[Math.floor(Math.random() * randomSet.length)]; // 랜덤으로 카드 하나 선택
+    showMsg(`힌트: 카드 ${randomCardIndex + 1}번을 확인해보세요!`, '#1976d2'); // 힌트 메시지 표시
+  } else {
+    showMsg('힌트: 현재 찾을 수 있는 합이 없습니다.', '#d32f2f'); // 남은 합이 없을 경우 메시지
+  }
+};
+    document.getElementById('newGame').onclick = function () {
+      teamScores = Array(TEAM_COUNT).fill(0);
+      startGame();
+      renderScoreboard();
+    };
+
+    renderScoreboard();
+    startGame();
+  </script>
+</body>
+</html>

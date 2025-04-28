@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>스트림스 숫자 타일 뽑기</title>
+    <style>
+        body {
+    font-family: 'Inter', Arial, sans-serif; /* 세련된 폰트 추가 */
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #f5f7fa, #c3cfe2); /* 부드러운 배경 그라데이션 */
+    color: #333;
+}
+
+h1 {
+    font-size: 2em; /* 폰트 크기 작게 */
+    color: #2196F3; /* 하늘색 */
+    margin-top: 30px;
+    margin-bottom: 20px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* 텍스트 그림자 추가 */
+}
+
+#tiles-container {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr); /* 5열 */
+    gap: 15px; /* 간격 증가 */
+    justify-content: center;
+    margin-top: 20px;
+    padding: 0 20px;
+}
+
+#recent-tile {
+    font-size: 3em;
+    color: #4CAF50;
+    margin-bottom: 20px;
+    font-weight: bold;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* 텍스트 그림자 추가 */
+}
+
+#tiles-container {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr); /* 5열 */
+    gap: 15px; /* 간격 증가 */
+    justify-content: center;
+    margin-top: 20px;
+    padding: 0 20px;
+}
+
+.tile {
+    background-color: #ffffff;
+    border: 2px solid #4CAF50;
+    border-radius: 10px;
+    padding: 20px;
+    font-size: 1.5em;
+    font-weight: bold;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 부드러운 그림자 */
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.tile:hover {
+    transform: scale(1.1); /* 호버 시 확대 효과 */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* 호버 시 그림자 증가 */
+}
+
+button {
+    padding: 12px 24px;
+    font-size: 1.2em;
+    margin: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 버튼 그림자 */
+    transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
+}
+
+button:hover {
+    background-color: #45a049;
+    transform: scale(1.05); /* 호버 시 확대 효과 */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* 호버 시 그림자 증가 */
+}
+
+button:active {
+    background-color: #3e8e41;
+    transform: scale(1); /* 클릭 시 원래 크기로 */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 클릭 시 그림자 감소 */
+}
+    </style>
+</head>
+<body>
+    <div id="recent-tile">스트림스 숫자 타일 뽑기</div>
+    <button onclick="drawTile()">타일 뽑기</button>
+    <button onclick="restartGame()">다시 시작</button>
+    <div id="tiles-container"></div>
+    <div style="margin-top: 10px; display: flex; justify-content: center;">
+        <button onclick="location.href='index.html'">메인 페이지로 돌아가기</button>
+      </div>
+    <script>
+        // 숫자 타일 배열 생성 (수정된 부분)
+        const initialTiles = Array.from({length: 10}, (_, i) => i + 1) // 1~10 각 1개
+                                  .concat(Array.from({length: 9}, (_, i) => i + 11)) // 11~19 첫 번째 세트
+                                  .concat(Array.from({length: 9}, (_, i) => i + 11)) // 11~19 두 번째 세트
+                                  .concat(Array.from({length: 11}, (_, i) => i + 20)) // 20~30 각 1개
+                                  .concat("★"); // 조커 추가
+
+        let remainingTiles = [...initialTiles]; // 남아있는 타일
+        let drawnTiles = []; // 뽑은 타일 저장
+
+        function drawTile() {
+    if (drawnTiles.length >= 20) {
+        alert("모든 타일을 이미 뽑았습니다!");
+        return;
+    }
+
+    // 랜덤으로 하나의 타일 선택
+    const randomIndex = Math.floor(Math.random() * remainingTiles.length);
+    const selectedTile = remainingTiles[randomIndex];
+    
+    // 선택된 타일을 저장하고 배열에서 제거
+    drawnTiles.push(selectedTile);
+    remainingTiles.splice(randomIndex, 1);
+
+    // 최근 뽑은 숫자를 상단에 표시
+    const recentTileElement = document.getElementById("recent-tile");
+    recentTileElement.textContent = `${selectedTile}`; // 선택된 타일 표시
+
+    // 화면에 누적 표시
+    const tilesContainer = document.getElementById("tiles-container");
+    
+    // 기존 타일 초기화 후 다시 그리기
+    tilesContainer.innerHTML = ""; // 기존 타일 제거
+    drawnTiles.forEach(tile => {
+        const tileElement = document.createElement("div");
+        tileElement.className = "tile";
+        tileElement.textContent = tile;
+        tilesContainer.appendChild(tileElement);
+    });
+}
+
+function restartGame() {
+    // 초기화
+    remainingTiles = [...initialTiles];
+    drawnTiles = [];
+    
+    // 화면 초기화
+    const tilesContainer = document.getElementById("tiles-container");
+    tilesContainer.innerHTML = ""; // 기존 타일 제거
+
+    const recentTileElement = document.getElementById("recent-tile");
+    recentTileElement.textContent = "스트림스 숫자 타일 뽑기"; // 기본 문구로 초기화
+
+    alert("새 게임이 시작되었습니다!");
+}
+document.addEventListener('keydown', function (event) {
+    if (event.key === 'Enter' || event.code === 'Space') {
+        // Enter 키 또는 Space 키로 타일 뽑기
+        drawTile();
+    } else if (event.key.toLowerCase() === 'r') {
+        // R 키로 다시 시작
+        restartGame();
+    }
+});
+    </script>
+</body>
+</html>
