@@ -424,6 +424,30 @@ document.getElementById('hint').onclick = function () {
 
     renderScoreboard();
     startGame();
+
+    // 키보드 입력으로 카드 선택/취소 처리
+document.addEventListener('keydown', function (event) {
+  const key = event.key;
+
+  // 숫자 키(`1`부터 `9`)만 처리
+  if (key >= '1' && key <= '9') {
+    const cardIndex = parseInt(key, 10) - 1; // 키보드 입력을 카드 인덱스로 변환 (0부터 시작)
+
+    if (cardIndex >= 0 && cardIndex < cards.length) {
+      // 선택된 카드가 이미 선택된 상태라면 선택 취소
+      if (selected.includes(cardIndex)) {
+        selected = selected.filter(i => i !== cardIndex);
+      } else if (selected.length < 3) {
+        // 선택된 카드가 3개 미만일 때만 추가
+        selected.push(cardIndex);
+      }
+
+      // 카드와 버튼 상태 업데이트
+      renderCards();
+      document.getElementById('checkSet').disabled = (selected.length !== 3);
+    }
+  }
+});
   </script>
 </body>
 </html>
