@@ -144,12 +144,6 @@
       { name: "A와 B의 각 자리수 중 짝수의 개수", fn: (a, b) => (a.toString() + b.toString()).split('').filter(x => Number(x) % 2 === 0).length },
       { name: "A와 B의 일의 자리수 합", fn: (a, b) => (Math.abs(a) % 10) + (Math.abs(b) % 10) },
       { name: "A와 B의 십의 자리수 합", fn: (a, b) => (Math.floor(Math.abs(a) / 10) % 10) + (Math.floor(Math.abs(b) / 10) % 10) },
-      { name: "A와 B의 각 자리수 역순의 합", fn: (a, b) => {
-          function revSum(n) {
-            return n.toString().split('').reverse().reduce((s, d) => s + Number(d), 0);
-          }
-          return revSum(a) + revSum(b);
-        }},
       { name: "A와 B의 각 자리수를 모두 곱한 값", fn: (a, b) => {
           return (a.toString().replace('-','') + b.toString().replace('-','')).split('').reduce((acc, cur) => acc * Number(cur), 1);
         }},
