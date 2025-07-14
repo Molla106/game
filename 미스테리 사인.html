@@ -124,7 +124,9 @@
       { name: "A² + B²", fn: (a, b) => a * a + b * b },
       { name: "|A - B|", fn: (a, b) => Math.abs(a - b) },
       { name: "(A + B) × 3", fn: (a, b) => a * 3 + b * 3 },
-      { name: "A³ + B³", fn: (a, b) => Math.pow(a, 3) + Math.pow(b, 3) },
+      { name: "A × 2 + B × 3", fn: (a, b) => a * 2 + b * 3 },
+      { name: "A² - B²", fn: (a, b) => a * a - b * b },
+      { name: "A + B + A × B", fn: (a, b) => a + b + a * b },
       { name: "최대공약수(GCD)", fn: (a, b) => {
           a = Math.abs(a); b = Math.abs(b);
           while(b) [a, b] = [b, a % b];
@@ -147,6 +149,15 @@
       { name: "A와 B의 각 자리수를 모두 곱한 값", fn: (a, b) => {
           return (a.toString().replace('-','') + b.toString().replace('-','')).split('').reduce((acc, cur) => acc * Number(cur), 1);
         }},
+      { name: "A와 B의 각 자리수 합", fn: (a, b) => {
+          const sumDigits = n => n.toString().replace('-','').split('').reduce((sum, d) => sum + Number(d), 0);
+          return sumDigits(a) + sumDigits(b);
+      }},
+      { name: "A와 B의 곱의 일의 자리수", fn: (a, b) => Math.abs(a * b) % 10 },
+      { name: "A와 B의 합의 일의 자리수", fn: (a, b) => Math.abs(a + b) % 10 },
+      { name: "A와 B의 곱의 십의 자리수", fn: (a, b) => Math.floor(Math.abs(a * b) / 10) % 10 },
+      { name: "A와 B의 합의 십의 자리수", fn: (a, b) => Math.floor(Math.abs(a + b) / 10) % 10 },
+      { name: "A와 B의 곱이 짝수면 1, 홀수면 0", fn: (a, b) => ((a * b) % 2 === 0 ? 1 : 0) },
     ];
 
     let currentRule, currentRuleName, ruleFn;
@@ -156,6 +167,8 @@
     let problemA = 0;
     let problemB = 0;
     let problemC = 0;
+    let usedProblems = [];
+    let usedRuleNames = [];
 
     function pickRandomRule() {
       const idx = Math.floor(Math.random() * rules.length);
@@ -164,18 +177,60 @@
       ruleFn = currentRule.fn;
     }
 
-    function randomAB() {
-      let a, b, c;
-      let tries = 0;
-      do {
-        a = Math.floor(Math.random() * 99) + 1;
-        b = Math.floor(Math.random() * 99) + 1;
-        c = ruleFn(a, b);
-        tries++;
-        if (tries > 1000) break;
-      } while (typeof c !== 'number' || c < 0 || c > 999 || isNaN(c) || !isFinite(c));
-      return [a, b];
-    }
+function randomAB() {
+  // 중복 체크 없이 무작위 (A,B) 반환
+  const a = Math.floor(Math.random() * 99) + 1;
+  const b = Math.floor(Math.random() * 99) + 1;
+  return [a, b];
+}
+function pickRandomRule() {
+  // 모든 규칙을 다 썼으면 초기화(원하면 이 부분을 빼도 됨)
+  if (usedRuleNames.length === rules.length) usedRuleNames = [];
+  let idx, rule;
+  let tries = 0;
+  do {
+    idx = Math.floor(Math.random() * rules.length);
+    rule = rules[idx];
+    tries++;
+    if (tries > 1000) break;
+  } while (usedRuleNames.includes(rule.name));
+  currentRule = rule;
+  currentRuleName = rule.name;
+  ruleFn = rule.fn;
+  usedRuleNames.push(currentRuleName); // 사용한 규칙 기록
+}
+function setNewProblem() {
+  let tries = 0;
+  let abKey, a, b, c;
+  do {
+    [a, b] = randomAB();
+    abKey = `${a},${b}`;
+    c = ruleFn(a, b);
+    tries++;
+    if (tries > 1000) break;
+  } while (
+    typeof c !== 'number' ||
+    c < 0 || c > 999 ||
+    isNaN(c) || !isFinite(c) ||
+    usedProblems.includes(abKey)
+  );
+  problemA = a;
+  problemB = b;
+  problemC = c;
+  usedProblems.push(abKey); // 문제 출제 후 추가
+  document.getElementById('problem').innerText = `문제: A = ${problemA}, B = ${problemB} 일 때 C = ?`;
+  document.getElementById('guess').value = '';
+}
+function newGame() {
+  pickRandomRule();
+  score = 0;
+  solved = false;
+  exampleHistory = [];
+  showExamples();
+  setNewProblem();
+  document.getElementById('result').innerText = '';
+  document.getElementById('rule').innerText = '';
+}
 
     function showExamples() {
       let html = "<b>예시</b><br>";
@@ -201,18 +256,6 @@
       showExamples();
       document.getElementById('exA').value = '';
       document.getElementById('exB').value = '';
-    }
-
-    function setNewProblem() {
-      let tries = 0;
-      do {
-        [problemA, problemB] = randomAB();
-        problemC = ruleFn(problemA, problemB);
-        tries++;
-        if (tries > 1000) break;
-      } while (typeof problemC !== 'number' || problemC < 0 || problemC > 999 || isNaN(problemC) || !isFinite(problemC));
-      document.getElementById('problem').innerText = `문제: A = ${problemA}, B = ${problemB} 일 때 C = ?`;
-      document.getElementById('guess').value = '';
     }
 
     function newGame() {
